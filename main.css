@@ -1,0 +1,90 @@
+body {
+	font-size:20pt;
+	margin:0px;
+  font-family: "trebuchet MS", Arial, Helvetica, "Sans Serif"; 
+  font-weight:bold;
+ 	color:#6ff;
+	background-color:#042B69;
+}
+
+a.link, #listing li {
+  cursor:pointer;
+	color:#7fa5f0;
+  text-decoration:none;
+}
+
+li {
+  list-style-type:none;
+  padding-left:0.5em;
+}
+
+#container {
+  background-color:#042B69;
+	padding:0.2em;
+}
+
+#pageHeader, #status , #content {
+  border:groove white 2px; 
+  width:97%;
+	padding:0.2em;
+  margin:0px;
+  font-variant:small-caps;
+}
+
+#pageHeader, #status {
+  position:fixed;
+  top:0px;
+  height:1.2em;
+  background:#04257F;
+}
+
+#pageHeader .header {
+	float:right;
+  width:68%;
+  overflow:hidden;
+  height:1.4em;
+  text-align:right;
+}
+
+#pageHeader #outLocation {
+  font-size:0.5em;
+  vertical-align:top;
+  cursor:pointer;
+}
+
+#pageHeader #fileID {
+  font-size:.9em;
+  font-family: "trebuchet MS", Arial, Helvetica, "Sans Serif"; 
+  padding-left:0.3em;
+  font-weight:bold;
+ 	color:white;
+	background-color:#04257F;
+  border:groove white 2px; 
+  float:left;
+  width:28%;
+
+}
+
+#status {
+  bottom:0px;
+  top:auto;
+  height:auto;
+}
+
+#content {
+	margin:auto;
+  margin-top:1.7em;
+  margin-bottom:1.7em;
+}
+
+#listing {
+  margin:0px;
+  padding:0px;
+}
+
+#listing .active {display:block; }
+#listing .inactive {display:none; }
+#listing .first { color:white;}
+
+
+
