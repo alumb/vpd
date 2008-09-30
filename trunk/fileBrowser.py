@@ -56,7 +56,7 @@ def main():
 <body>
 	<div id="container">
 		<div id="pageHeader">
-			<input type="text" id="fileID" name="fileID" value="Quick Select"/>
+			<input type="text" id="fileID" name="fileID" value=""/>
 			<span class="header">"""; print title; print """- VPD</span>
 		</div>
 		<div id="content">

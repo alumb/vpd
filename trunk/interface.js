@@ -1,15 +1,19 @@
 
 log = ""
 logTimerRunning = false
+logTimerKill = false
 
 function setContent(value) { document.getElementById("content").innerHTML = value; }
 function setStatus(value) { 
   for(var i = 52; i < value.length; i += 52) value = value.substr(0,i) + "&thinsp;" + value.substr(i);
-  document.getElementById("status").innerHTML = value; 
+	log = "";
+	document.getElementById("status").innerHTML = value; 
+	logTimerKill = logTimerRunning
 }
 
 function setLog(value) {
   if(value == "logTimmer") {
+		if(logTimerKill) { logTimerKill = false; return; }
     if(log.indexOf('\n')>=0) log = log.substr(log.toLowerCase().indexOf('\n')+1);
     else log = "";
     logTimerRunning = false;
@@ -61,6 +65,6 @@ function chLoc(innerHTML,data,linkObject) {
 function indexChanged(newListItem) {
   data = newListItem.getAttribute("data").replace(/\%2f/ig,"/");
   status = data.substr(Math.max(data.slice(0,-1).lastIndexOf("/")+1,5));
-  if(log.length<=0)  setStatus(status);
-  else setLog(status);
+	setStatus(status);
+
 }
