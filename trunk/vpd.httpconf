@@ -1,0 +1,14 @@
+AddHandler cgi-script .py
+ScriptAlias /mymc/ /home/alumb/public_html/vpd/
+<Directory /home/alumb/public_html/vpd>
+	Options +ExecCGI
+	AuthType Basic
+	AuthName "Lynet"
+	AuthUserFile /etc/apache2/siteAuth
+	Order deny,allow
+	Deny from all
+	Allow from localhost
+	Allow from 192.168.1
+	Require user alumb guest
+	Satisfy any
+</Directory>
