@@ -4,18 +4,10 @@ import cgitb; cgitb.enable()
 import re
 import os
 import urllib
+import conf
 
 print "Content-type: text/html\n"
-
-conf = dict()
-
-def loadConf():
-	for line in open("vpd.conf",'r'):
-		if len(line.strip()) <=0 or line[0] == "#" or line[0] == "[": continue
-		lines = line.split("=")
-		if len(lines) != 2: print "Config Error: " + str(len(line)) + line; quit()
-		conf[lines[0]] = lines[1]
-    
+  
 
 def getRequetedDir():
   form = cgi.FieldStorage()
@@ -42,7 +34,6 @@ def filterFiles(fileName):
   return True
   
 def main(): 
-  loadConf()
   requestedDir = getRequetedDir()
   title = requestedDir.lstrip("/") if len(requestedDir) > 0 else "File Browser"
 	
@@ -50,6 +41,8 @@ def main():
 <html>
 	<head>
 	<link rel="STYLESHEET" href="main.css" type='text/css' />
+	<link media="only screen and (max-device-width: 480px)" href="iPhone.css" type="text/css" rel="stylesheet" />
+	<meta name="viewport" content="width=500" />
 	<script language="javascript" src="interface.js"></script>
   <script language="javascript" src="quickList.js"></script>
 	</head>
@@ -68,11 +61,11 @@ def main():
   location = (requestedDir[0:requestedDir[:-1].rfind("/")]).replace("/","%2f")
   if len(requestedDir) > 0: print "<li class='active' data=\"dire|%s\" onclick=\"document.location='?dir=%s'\">back</li>" % (location, location)
   try:
-    list = os.listdir(conf["directories"] + requestedDir)
+    list = os.listdir(conf.conf["directories"] + requestedDir)
     list.sort(key=str.lower)
     for line in list:
       if filterFiles(line):
-        if os.path.isdir(conf["directories"] + requestedDir+os.sep+line):
+        if os.path.isdir(conf.conf["directories"] + requestedDir+os.sep+line):
           location = (requestedDir + "/" + line).replace("//","/").replace("/","%2f")
           print "<li class='active' data=\"dire|%s%%2f\" onclick=\"document.location='?dir=%s\'\">%.54s</li>" % (location, location, filter(line))
         else:
@@ -101,7 +94,6 @@ def main():
 
 </body></html>"""
 
-	
 
 
 main()
