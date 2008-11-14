@@ -1,11 +1,10 @@
 #!/usr/bin/python2.5
+#runing this file returns the file either as a mpegurl playlist (if pls=true) or the content of the actual file.
 import cgi
 import cgitb; cgitb.enable()
 import os
 import sys
-
-#print "Content-type:text/plain\n"
-#print str(os.environ).replace(",","\n")
+import conf 
 
 def getURL(queryString = None):
   schema, stdport = (('http', '80'), ('https', '443'))[os.environ.get('SSL_PROTOCOL', '') != '']
@@ -34,15 +33,8 @@ if form.has_key("pls"):
   print getURL("file="+form["file"].value.replace("'","&apos;").replace("/","%2f"))
 
 else: 
-  conf = dict()  
-  
-  for line in open("vpd.conf",'r'):
-    if len(line.strip()) <=0 or line[0] == "#" or line[0] == "[": continue
-    lines = line.split("=")
-    if len(lines) != 2: print "Config Error: " + str(len(line)) + line; quit()
-    conf[lines[0]] = lines[1]
     
-  file = conf["directories"] +  form["file"].value.replace("%2f","/")
+  file = conf.conf["directories"] +  form["file"].value.replace("%2f","/")
   
   print "Content-type:video/mpeg\n"
   input = open(file,'rb')
