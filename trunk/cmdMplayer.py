@@ -16,7 +16,7 @@ form = cgi.FieldStorage()
 def log(data):
   print data
  
-file = conf.conf["directories"] +  form["file"].value.replace("%2f","/")
+file = conf.conf["directories"].strip() +  form["file"].value.replace("%2f","/")
 
 client = vpd_core.Client()
 client.log = log

@@ -34,7 +34,7 @@ if form.has_key("pls"):
 
 else: 
     
-  file = conf.conf["directories"] +  form["file"].value.replace("%2f","/")
+  file = conf.conf["directories"].strip() +  form["file"].value.replace("%2f","/")
   
   print "Content-type:video/mpeg\n"
   input = open(file,'rb')
