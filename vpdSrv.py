@@ -28,11 +28,12 @@ except ImportError, msg:
 def main():
     log = logging.getLogger('vpd.server');
     console = logging.StreamHandler(sys.stdout)
-    console.setLevel(logging.INFO)
+    log.setLevel(logging.INFO)
     # tell the handler to use this format
     console.setFormatter(logging.Formatter('%(name)-12s: %(levelname)-8s %(message)s'))
     # add the handler to the root logger
     log.addHandler(console)
+    logging.getLogger('vpd.Mplayer').addHandler(console)
     try:
         server = Server(port=50001, max_conn=2)
     except socket.error, msg:
@@ -40,8 +41,6 @@ def main():
     server.args = sys.argv[1:]
     signal.signal(signal.SIGTERM, lambda s, f: server.stop())
 
-
-    log.error("test")
     try:
         server.start()
     except KeyboardInterrupt:
