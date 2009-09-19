@@ -28,6 +28,7 @@ import asyncore
 import select
 import asynchat
 import os
+import logging
 from subprocess import Popen, PIPE
 from threading import Thread
 
@@ -42,7 +43,7 @@ PORT = 50001
 MAX_CMD_LEN = 256
 
 # added error handeling
-def loop(log=None, timeout=30.0, use_poll=False, map=None, count=None): 
+def loop(log=logging, timeout=30.0, use_poll=False, map=None, count=None): 
   flag = True
   while flag:
     try:
@@ -54,14 +55,12 @@ def loop(log=None, timeout=30.0, use_poll=False, map=None, count=None):
           os.fstat(fileID)
         except OSError:
           del map[fileID]
-          if log: log("FILE ERROR: removed fileID: " + str(fileID))
+          if log: log.error("FILE ERROR: removed fileID: " + str(fileID))
           flag = True
     except socket.error, errstr:
-      if log: log("Error: " + str(errstr))
-      else: print "Error: " + str(errstr)
+      log.error("Error: " + str(errstr))
       break
-    if log: log("Loping after File Removed")
-    else: print "Loping after File Removed"
+    log.info("Loping after File Removed")
         
 
 class Server(asyncore.dispatcher):
@@ -80,20 +79,21 @@ class Server(asyncore.dispatcher):
         self.bind((host, port))
         self.listen(self.max_conn)
         self.mplayer = {}
+        self.log = logging.getLogger('vpd.server')
 
     @staticmethod
     def writable():
         return False
 
     def handle_close(self):
-        self.log("Server closed.")
+        self.log.info("Server closed.")
         self.close()
 
     def handle_accept(self):
         conn, addr = self.accept()
-        self.log("Connection accepted: %s" % (addr, ))
+        self.log.info("Connection accepted: %s" % (addr, ))
         # Dispatch connection to a _ClientHandler
-        _ClientHandler(conn, self._map, self.log, self.mplayer)
+        _ClientHandler(conn, self._map, self.mplayer)
             
     def start(self, timeout=30.0, use_poll=False):
         """Start the server.
@@ -104,7 +104,7 @@ class Server(asyncore.dispatcher):
         Starts the MPlayer process, then calls asyncore.loop (blocking)
 
         """
-        self.log("Server started.")
+        self.log.info("Server started.")
         loop(timeout=timeout, use_poll=use_poll, map=self._map, log=self.log)
             
     def stop(self):
@@ -121,12 +121,12 @@ class Server(asyncore.dispatcher):
 
 class MyMplayer:
 
-  def __init__(self, map, log, client):
+  def __init__(self, map, client):
     self._process = None
     self._stdout = 0
     self._stderr = 0
     self._map = map
-    self.log = log
+    self.log = logging.getLogger('vpd.Mplayer');
     self.client = client # this is a _ClientHandler can be Nothing
     #list of available commands is here:         http://www.mplayerhq.hu/DOCS/tech/slave.txt
     self.cmds = { 
@@ -137,10 +137,9 @@ class MyMplayer:
     }
 
   def play(self, cmdArgs):
-    self.log("playing: " + cmdArgs)
+    self.log.info("playing: " + cmdArgs)
     if self.isalive(): self.stop()
     args = ['mplayer', '-slave', '-quiet', '-nortc', '-fs', '-nojoystick', '-nolirc', '-vo', 'xv,x11,', cmdArgs]
-    #
     try:
       # Start the MPlayer process (line-buffered)
       self._process = Popen(args=args, stdin=PIPE, stdout=PIPE, stderr=PIPE, bufsize=1)
@@ -157,7 +156,7 @@ class MyMplayer:
   def pause(self, cmdArgs): self.command("pause")    
       
   def stop(self, cmdArgs=""):
-    self.log("stopping")
+    self.log.info("stopping")
     if self.isalive():
       self.mplayer_command("quit")
     if self._stdout in self._map: del self._map[self._stdout]; self._stdout = 0
@@ -166,13 +165,13 @@ class MyMplayer:
   def mplayer_data(self):
     data = self._process.stdout.readline().rstrip()
     if data:
-      self.log(data)
+      self.log.info(data)
       if data.startswith("Exiting..."): self.stop("")
           
   def mplayer_error(self):
     error = self._process.stderr.readline().rstrip()
     if error:
-        self.log("Error: " + error)
+        self.log.error("Error: " + error)
         if self.client: self.client.tellClient("Error: "+ error)        
 
   def mplayer_command(self, cmd):
@@ -188,10 +187,10 @@ class MyMplayer:
       returnVal = fn(" ".join(cmdArr[1:]))
       if returnVal: 
         if self.client: self.client.tellClient(returnVal)
-        self.log("returned: "+ returnVal)
+        self.log.info("returned: "+ returnVal)
     except KeyError:
       if self.client: self.client.tellClient("command not found: " + cmd )
-      self.log("command not found: " + cmd)
+      self.log.warning("command not found: " + cmd)
   
   def isalive(self):
     try:
@@ -205,20 +204,20 @@ class _ClientHandler(asynchat.async_chat):
     ac_in_buffer_size = MAX_CMD_LEN
     ac_out_buffer_size = 512
     
-    def __init__(self, conn, map, log, mplayer):
+    def __init__(self, conn, map, mplayer):
         asynchat.async_chat.__init__(self, conn)
         # We're using a custom map so remove self from asyncore.socket_map.
         asyncore.socket_map.pop(self._fileno)
         self._map = map
         self.add_channel()
-        self.log = log
+        self.log = logging.getLogger('vpd.client');
         self.buffer = []
         self.set_terminator("\r\n\r\n")
   
         #everyone is local right now...
         self.mplayerName = 'local'
         #either create the mplayer instance by this name if it doesn't exist
-        if self.mplayerName not in mplayer: mplayer[self.mplayerName] = MyMplayer(self._map, self.log, self)
+        if self.mplayerName not in mplayer: mplayer[self.mplayerName] = MyMplayer(self._map, self)
         else: mplayer[self.mplayerName].client = self
         self.mplayer = mplayer[self.mplayerName]
 
@@ -227,16 +226,16 @@ class _ClientHandler(asynchat.async_chat):
             self.tellClient(data)
 
     def tellClient(self, data) :
-      self.log("telling client: " + data)
+      self.log.info("telling client: " + data)
       try: 
         self.push("".join([data, "\r\n"]))
       except:
-        self.log("Lost Client, Trieded to send: " + data)
+        self.log.error("Lost Client, Trieded to send: " + data)
                 
     def handle_close(self):
         self.close()
         self.mplayer.client = None
-        self.log("Connection closed: %s" % (self.addr, ))
+        self.log.info("Connection closed: %s" % (self.addr, ))
 
     def collect_incoming_data(self, data):
         self.buffer.append(data)
