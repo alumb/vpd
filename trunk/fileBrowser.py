@@ -61,11 +61,11 @@ def main():
   location = (requestedDir[0:requestedDir[:-1].rfind("/")]).replace("/","%2f")
   if len(requestedDir) > 0: print "<li class='active' data=\"dire|%s\" onclick=\"document.location='?dir=%s'\">back</li>" % (location, location)
   try:
-    list = os.listdir(conf.conf["directories"] + requestedDir)
+    list = os.listdir(conf.conf["directories"].strip() + requestedDir)
     list.sort(key=str.lower)
     for line in list:
       if filterFiles(line):
-        if os.path.isdir(conf.conf["directories"] + requestedDir+os.sep+line):
+        if os.path.isdir(conf.conf["directories"].strip() + requestedDir+os.sep+line):
           location = (requestedDir + "/" + line).replace("//","/").replace("/","%2f")
           print "<li class='active' data=\"dire|%s%%2f\" onclick=\"document.location='?dir=%s\'\">%.54s</li>" % (location, location, filter(line))
         else:

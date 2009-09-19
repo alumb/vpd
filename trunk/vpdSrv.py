@@ -18,6 +18,7 @@
 import sys
 import socket
 import signal
+import logging
 try:
     from vpd_core import Server
 except ImportError, msg:
@@ -25,12 +26,22 @@ except ImportError, msg:
 
 
 def main():
+    log = logging.getLogger('vpd.server');
+    console = logging.StreamHandler(sys.stdout)
+    console.setLevel(logging.INFO)
+    # tell the handler to use this format
+    console.setFormatter(logging.Formatter('%(name)-12s: %(levelname)-8s %(message)s'))
+    # add the handler to the root logger
+    log.addHandler(console)
     try:
         server = Server(port=50001, max_conn=2)
     except socket.error, msg:
         sys.exit(msg)
     server.args = sys.argv[1:]
     signal.signal(signal.SIGTERM, lambda s, f: server.stop())
+
+
+    log.error("test")
     try:
         server.start()
     except KeyboardInterrupt:

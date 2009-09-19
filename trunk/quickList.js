@@ -1,9 +1,8 @@
 function attachQuickList(textBox, list, searchString, onselect, previousControlName, nextControlName, indexChanged) {
-
 	textBox.quickList = list.getElementsByTagName("li");
   textBox.quickList[0].className = "active first";
 	textBox.searchString = searchString;
-  textBox.onkeydown = moveInList;
+  textBox.onkeypress = moveInList;
 	textBox.onkeyup = resortList;
 	textBox.onSelectFunction = onselect;
   textBox.onIndexChangedFunction = indexChanged;
@@ -27,7 +26,7 @@ function moveInList(e){
 		for(var index=0; index<this.quickList.length; index++) {
 			if(this.quickList[index].className == "active first") {
 				if(index > 0) {
-					this.quickList[index].className = this.quickList[index].className.replace(/first/,"");
+					this.quickList[index].className = this.quickList[index].className.replace(/ first/,"");
 					for(var subIndex=index-1; subIndex>=0; subIndex--)
 						if(this.quickList[subIndex].className == "active") {
 							this.quickList[subIndex].className = "active first";
@@ -45,7 +44,7 @@ function moveInList(e){
 		for(var index=0; index<this.quickList.length; index++) {
 			if(this.quickList[index].className == "active first") {
 				if(index < this.quickList.length-1) {
-					this.quickList[index].className = this.quickList[index].className.replace(/first/,"");
+					this.quickList[index].className = this.quickList[index].className.replace(/ first/,"");
 					for(var subIndex=index+1; subIndex<this.quickList.length; subIndex++)
 						if(this.quickList[subIndex].className == "active") {
 							this.quickList[subIndex].className = "active first";
