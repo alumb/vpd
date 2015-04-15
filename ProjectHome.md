@@ -1,0 +1,1 @@
+Video Player Daemon is a server and set of clients for playing videos on a media pc. Kind of like [Mythtv](http://www.mythtv.org/) but with less features and less bloat. Kind of like [mpd](http://www.musicpd.org/) except for video.
